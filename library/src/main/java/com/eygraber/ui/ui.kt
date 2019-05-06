@@ -16,22 +16,24 @@ private val DEFAULT_ERROR_LISTENER = object : UiTransactions.CommitErrorListener
     override fun onError(t: Throwable) {}
 }
 
-/**
- * The only purpose of this interface is to allow for DI frameworks like Kodein to bind all of the UI interfaces
- */
-interface UiManagerMarker {
+interface UiManager {
     companion object {
         fun getImpl(
                 activity: FragmentActivity,
                 commitErrorListener: UiTransactions.CommitErrorListener
-        ): UiManagerMarker = UiManager(activity, commitErrorListener)
+        ): UiManager = UiManagerImpl(activity, commitErrorListener)
     }
+
+    val onBackPressListener: OnBackPressListener
+    val uiStackPersistenceManager: UiStackPersistenceManager
+    val uiStackState: UiStackState
+    val uiTransactions: UiTransactions
 }
 
-class UiManager(
+private class UiManagerImpl(
         private val activity: FragmentActivity,
         private val commitErrorListener: UiTransactions.CommitErrorListener = DEFAULT_ERROR_LISTENER
-) : UiManagerMarker,
+) : UiManager,
         UiTransactions,
         UiStackPersistenceManager,
         OnBackPressListener,
@@ -40,6 +42,11 @@ class UiManager(
     companion object {
         private const val STACK_KEY = "stack"
     }
+
+    override val onBackPressListener = this
+    override val uiStackPersistenceManager = this
+    override val uiStackState = this
+    override val uiTransactions = this
 
     private val manager by lazy(LazyThreadSafetyMode.NONE) { activity.supportFragmentManager }
 

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+echo "Did you update the README?"
+
+read -n1 reply
+
+if [ $reply != "y" ]; then
+  exit
+fi
+
+./gradlew :library:clean :library:build :library:bintrayUpload
+
+echo "Waiting 30 seconds for ui to be available in bintray"
+
+sleep 30s
+
+./gradlew :ui-rx:clean :ui-rx:build :ui-rx:bintrayUpload
