@@ -102,19 +102,46 @@ private class UiManagerImpl(
 
         val popEntries = transactions
                 .entries
-                .onEach {
-                    when (it.op) {
-                        TransactionOp.ADD -> add(it.id!!, it.fragment!!, it.tag, it.animationId, it.markForSharedElementTransition)
-                        TransactionOp.ATTACH -> attach(it.tag, it.animationId, it.markForSharedElementTransition)
-                        TransactionOp.SHOW -> show(it.tag, it.animationId, it.markForSharedElementTransition)
-                        TransactionOp.HIDE -> hide(it.tag, it.animationId, it.markForSharedElementTransition)
-                        TransactionOp.DETACH -> detach(it.tag, it.animationId, it.markForSharedElementTransition)
-                        else -> throw IllegalStateException("Cannot remove in a PushTransaction")
+                .let { entries ->
+                    // record the pop entries first before we perform the actual op (mostly important for REMOVE)
+                    val popEntries = entries
+                        .reversed()
+                        .mapTo(ArrayList(transactions.entries.size)) {
+                            if(it.op == TransactionOp.REMOVE) {
+                                val fragment = manager.findFragmentByTag(it.tag)
+                                    ?: throw IllegalArgumentException("No fragment found for tag ${it.tag}")
+
+                                PopEntry(
+                                    it.tag, it.popAnimationId,
+                                    it.op.reverse(), it.markForSharedElementTransition,
+                                    id = fragment.id,
+                                    fqn = fragment.javaClass.name,
+                                    state = manager.saveFragmentInstanceState(fragment),
+                                    args = fragment.arguments
+                                )
+                            }
+                            else {
+                                PopEntry(
+                                    it.tag, it.popAnimationId,
+                                    it.op.reverse(), it.markForSharedElementTransition
+                                )
+                            }
+                        }
+
+                    // then perform the actual op once the pre-op state has been recorded (mostly important for REMOVE)
+                    entries.onEach {
+                        when (it.op) {
+                            TransactionOp.ADD -> add(it.id!!, it.fragment!!, it.tag, it.animationId, it.markForSharedElementTransition)
+                            TransactionOp.ATTACH -> attach(it.tag, it.animationId, it.markForSharedElementTransition)
+                            TransactionOp.SHOW -> show(it.tag, it.animationId, it.markForSharedElementTransition)
+                            TransactionOp.HIDE -> hide(it.tag, it.animationId, it.markForSharedElementTransition)
+                            TransactionOp.DETACH -> detach(it.tag, it.animationId, it.markForSharedElementTransition)
+                            TransactionOp.REMOVE -> remove(it.tag, it.animationId, it.markForSharedElementTransition)
+                        }
                     }
-                }
-                .reversed() // reverse it so the operations are stored in reverse order for popping
-                .mapTo(ArrayList(transactions.entries.size)) {
-                    PopEntry(it.tag, it.popAnimationId, it.op.reverse(), it.markForSharedElementTransition)
+
+                    // return the pop entries
+                    popEntries
                 }
 
         val (popSourceNamesForSharedElementTransition, popTargetNamesForSharedElementTransition) =

@@ -86,4 +86,15 @@ class PushTransaction {
                 PushTransactionEntry(tag, animationId, popAnimationId, TransactionOp.DETACH, markForSharedElementTransition = markAsSourceFragmentForSharedElementTransition)
         )
     }
+
+    fun remove(
+        tag: String,
+        animationId: Int? = null,
+        popAnimationId: Int? = null,
+        markAsSourceFragmentForSharedElementTransition: Boolean = false
+    ) {
+        entries.add(
+            PushTransactionEntry(tag, animationId, popAnimationId, TransactionOp.REMOVE, markForSharedElementTransition = markAsSourceFragmentForSharedElementTransition)
+        )
+    }
 }
