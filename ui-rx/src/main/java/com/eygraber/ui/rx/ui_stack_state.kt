@@ -4,7 +4,7 @@ import androidx.annotation.MainThread
 import com.eygraber.ui.OnBackPressListener
 import com.eygraber.ui.OnStackChangeListener
 import com.eygraber.ui.UiStackState
-import io.reactivex.Observable
+import io.reactivex.rxjava3.core.Observable
 
 @MainThread
 interface BackPressMarker {

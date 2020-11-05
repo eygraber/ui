@@ -284,8 +284,10 @@ private class UiManagerImpl(
     private val backPressListeners = HashSet<OnBackPressListener>()
 
     override fun onBackPressed(): Boolean {
+        val traversalSafeListeners = ArrayList(backPressListeners)
+
         backPressHandled = false
-        backPressHandled = backPressListeners.fold(initial = false) { wasBackPressed, listener ->
+        backPressHandled = traversalSafeListeners.fold(initial = false) { wasBackPressed, listener ->
             listener.onBackPressed() || wasBackPressed
         }
 
@@ -293,7 +295,9 @@ private class UiManagerImpl(
             stack.isEmpty() -> false
 
             else -> {
-                commit { pop(stack.peek().tag) }
+                stack.peek()?.tag?.let { tag ->
+                    commit { pop(tag) }
+                }
                 true
             }
         }
