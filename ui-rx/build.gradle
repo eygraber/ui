@@ -27,9 +27,9 @@ android {
 }
 
 dependencies {
-    implementation "com.eygraber:ui:$artifactVersion"
+    implementation project(":library")
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "androidx.annotation:annotation:1.1.0"
+    implementation "androidx.annotation:annotation:1.2.0"
     implementation "io.reactivex.rxjava3:rxjava:3.0.11"
 
     testImplementation 'junit:junit:4.13.2'
