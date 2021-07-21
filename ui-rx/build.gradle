@@ -1,5 +1,9 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'com.vanniktech.maven.publish'
 
 android {
     compileSdkVersion 30
@@ -33,8 +37,8 @@ dependencies {
     implementation "io.reactivex.rxjava3:rxjava:3.0.11"
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
@@ -48,4 +52,6 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
-apply from: rootProject.file('publishing.gradle')
+mavenPublish {
+    sonatypeHost = SonatypeHost.S01
+}
